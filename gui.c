@@ -11,7 +11,7 @@ static gboolean panning = FALSE;
 static void
 on_resize (GtkGLArea *area, gint width, gint height)
 {
-	view_recalc(width, height);
+	view_set_window(width, height);
 }
 
 static gboolean
@@ -104,6 +104,26 @@ on_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 	return FALSE;
 }
 
+static gboolean
+on_scroll (GtkWidget* widget, GdkEventScroll *event)
+{
+	switch (event->direction)
+	{
+	case GDK_SCROLL_UP:
+		view_z_decrease();
+		break;
+
+	case GDK_SCROLL_DOWN:
+		view_z_increase();
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
 int
 gui_run (int argc, char **argv)
 {
@@ -121,11 +141,13 @@ gui_run (int argc, char **argv)
 	g_signal_connect(glarea, "realize", G_CALLBACK(on_realize), NULL);
 	g_signal_connect(glarea, "render",  G_CALLBACK(on_render),  NULL);
 	g_signal_connect(glarea, "resize",  G_CALLBACK(on_resize),  NULL);
+	g_signal_connect(glarea, "scroll-event", G_CALLBACK(on_scroll), NULL);
 	g_signal_connect(glarea, "button-press-event",   G_CALLBACK(on_button_press),   NULL);
 	g_signal_connect(glarea, "button-release-event", G_CALLBACK(on_button_release), NULL);
 	g_signal_connect(glarea, "motion-notify-event",  G_CALLBACK(on_motion_notify),  NULL);
 
 	// Set glarea signal masks:
+	gtk_widget_add_events(glarea, GDK_SCROLL_MASK);
 	gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);
 	gtk_widget_add_events(glarea, GDK_BUTTON_RELEASE_MASK);
 	gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
