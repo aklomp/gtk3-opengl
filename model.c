@@ -1,3 +1,4 @@
+#include <math.h>
 #include <GL/glew.h>
 
 #include "matrix.h"
@@ -5,6 +6,10 @@
 
 static GLuint vao, vbo[2];
 static float matrix[16] = { 0 };
+static int pan_x, pan_y;
+static float rot_x = 0.0f;
+static float rot_y = 1.0f;
+static float rot_z = 0.0f;
 
 void
 model_init (void)
@@ -132,7 +137,7 @@ model_draw (void)
 	angle += 0.01;
 
 	// Setup rotation matrix:
-	mat_rotate(matrix, angle);
+	mat_rotate(matrix, rot_x, rot_y, rot_z, angle);
 
 	// Use our own shaders:
 	program_use();
@@ -146,4 +151,22 @@ float *
 model_matrix (void)
 {
 	return matrix;
+}
+
+void
+model_pan_start (int x, int y)
+{
+	pan_x = x;
+	pan_y = y;
+}
+
+void
+model_pan_move (int x, int y)
+{
+	int dx = pan_x - x;
+	int dy = pan_y - y;
+
+	// Rotation vector is perpendicular to (dx, dy):
+	rot_x = dy;
+	rot_y = -dx;
 }

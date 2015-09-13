@@ -6,6 +6,8 @@
 #include "program.h"
 #include "view.h"
 
+static gboolean panning = FALSE;
+
 static void
 on_resize (GtkGLArea *area, gint width, gint height)
 {
@@ -66,6 +68,42 @@ on_realize (GtkGLArea *glarea)
 	gdk_frame_clock_begin_updating(frame_clock);
 }
 
+static gboolean
+on_button_press (GtkWidget *widget, GdkEventButton *event)
+{
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+
+	if (event->button == 1)
+		if (panning == FALSE) {
+			panning = TRUE;
+			model_pan_start(event->x, allocation.height - event->y);
+		}
+
+	return FALSE;
+}
+
+static gboolean
+on_button_release (GtkWidget *widget, GdkEventButton *event)
+{
+	if (event->button == 1)
+		panning = FALSE;
+
+	return FALSE;
+}
+
+static gboolean
+on_motion_notify (GtkWidget *widget, GdkEventMotion *event)
+{
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+
+	if (panning == TRUE)
+		model_pan_move(event->x, allocation.height - event->y);
+
+	return FALSE;
+}
+
 int
 gui_run (int argc, char **argv)
 {
@@ -83,6 +121,14 @@ gui_run (int argc, char **argv)
 	g_signal_connect(glarea, "realize", G_CALLBACK(on_realize), NULL);
 	g_signal_connect(glarea, "render",  G_CALLBACK(on_render),  NULL);
 	g_signal_connect(glarea, "resize",  G_CALLBACK(on_resize),  NULL);
+	g_signal_connect(glarea, "button-press-event",   G_CALLBACK(on_button_press),   NULL);
+	g_signal_connect(glarea, "button-release-event", G_CALLBACK(on_button_release), NULL);
+	g_signal_connect(glarea, "motion-notify-event",  G_CALLBACK(on_motion_notify),  NULL);
+
+	// Set glarea signal masks:
+	gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);
+	gtk_widget_add_events(glarea, GDK_BUTTON_RELEASE_MASK);
+	gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
 
 	gtk_widget_show_all(window);
 
