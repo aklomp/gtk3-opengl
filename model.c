@@ -51,6 +51,16 @@ model_init (void)
 		{ 5, 4, 7 },
 	};
 
+	// Face normals in a unit cube:
+	int fnormals[6][3] = {
+		{  0,  0, -1 },
+		{  0, -1,  0 },
+		{  1,  0,  0 },
+		{  0,  1,  0 },
+		{ -1,  0,  0 },
+		{  0,  0,  1 },
+	};
+
 	// Generate an array of vertices:
 	float vertices[12 * 3 * 3];
 	float *cur = vertices;
@@ -76,8 +86,17 @@ model_init (void)
 		}
 	}
 
+	// Generate an array of normals, one per vertex:
+	float normals[12 * 3 * 3];
+	cur = normals;
+
+	for (int i = 0; i < 6; i++)
+		for (int k = 0; k < 6; k++)
+			for (int j = 0; j < 3; j++)
+				*cur++ = fnormals[i][j];
+
 	// Generate empty buffers:
-	glGenBuffers(2, vbo);
+	glGenBuffers(3, vbo);
 
 	// Generate empty vertex array object:
 	glGenVertexArrays(1, &vao);
@@ -96,6 +115,12 @@ model_init (void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 	glVertexAttribPointer(program_vcolor_loc(), 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	// Add normal data to third buffer:
+	glEnableVertexAttribArray(program_normal_loc());
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+	glVertexAttribPointer(program_normal_loc(), 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 void

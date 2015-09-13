@@ -19,6 +19,7 @@ static GLint vertex_loc;
 static GLint view_matrix_loc;
 static GLint model_matrix_loc;
 static GLint vcolor_loc;
+static GLint normal_loc;
 
 static void
 check_compile (GLuint shader)
@@ -102,6 +103,7 @@ program_init (void)
 	model_matrix_loc = glGetUniformLocation(program, "model_matrix");
 	vertex_loc = glGetAttribLocation(program, "vertex");
 	vcolor_loc = glGetAttribLocation(program, "vcolor");
+	normal_loc = glGetAttribLocation(program, "normal");
 }
 
 void
@@ -121,4 +123,9 @@ GLint program_vcolor_loc (void)
 GLint program_vertex_loc (void)
 {
 	return vertex_loc;
+}
+
+GLint program_normal_loc (void)
+{
+	return normal_loc;
 }
