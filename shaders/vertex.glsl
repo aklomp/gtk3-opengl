@@ -8,11 +8,14 @@ in vec3 vcolor;
 in vec3 normal;
 
 out vec3 fcolor;
+out vec3 fpos;
 out float fdot;
 
 void main (void)
 {
-	gl_Position = view_matrix * model_matrix * vec4(vertex, 1.0);
+	vec4 modelspace = model_matrix * vec4(vertex, 1.0);
+
+	gl_Position = view_matrix * modelspace;
 	fcolor = vcolor;
 
 	/* Sight vector is straight down in world coords: (0, 0, -1) */
@@ -23,4 +26,7 @@ void main (void)
 
 	/* Get cosine of the angle between sight and normal: */
 	fdot = dot(sight, wnormal);
+
+	/* Feed position to fragment shader: */
+	fpos = modelspace.xyz;
 }
