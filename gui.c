@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <gtk/gtk.h>
 
+#include "background.h"
 #include "matrix.h"
 #include "model.h"
 #include "program.h"
@@ -21,6 +22,7 @@ static void
 on_resize (GtkGLArea *area, gint width, gint height)
 {
 	view_set_window(width, height);
+	background_set_window(width, height);
 }
 
 static gboolean
@@ -28,6 +30,9 @@ on_render (GtkGLArea *glarea, GdkGLContext *context)
 {
 	// Clear canvas:
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Draw background:
+	background_draw();
 
 	// Draw model:
 	model_draw();
@@ -61,8 +66,11 @@ on_realize (GtkGLArea *glarea)
 	// Enable depth buffer:
 	gtk_gl_area_set_has_depth_buffer(glarea, TRUE);
 
-	// Init program:
+	// Init programs:
 	program_init();
+
+	// Init background:
+	background_init();
 
 	// Init model:
 	model_init();

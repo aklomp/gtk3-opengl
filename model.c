@@ -242,6 +242,9 @@ model_draw (void)
 	// Use our own shaders:
 	program_use();
 
+	// Don't clip against background:
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	// Draw all the triangles in the buffer:
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
