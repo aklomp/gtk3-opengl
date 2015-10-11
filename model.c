@@ -11,6 +11,14 @@ static float rot_x = 0.0f;
 static float rot_y = 1.0f;
 static float rot_z = 0.0f;
 
+static void
+cross (float result[3], const float a[3], const float b[3])
+{
+	result[0] = a[1] * b[2] - a[2] * b[1];
+	result[1] = a[2] * b[0] - a[0] * b[2];
+	result[2] = a[0] * b[1] - a[1] * b[0];
+}
+
 void
 model_init (void)
 {
@@ -48,8 +56,8 @@ model_init (void)
 	// Each face has a single normal, four corner points,
 	// and two triangles:
 	struct face {
-		struct point normal;
 		struct corner corner[4];
+		struct point normal;
 		struct triangle tri[2];
 	} __attribute__((packed));
 
@@ -63,8 +71,7 @@ model_init (void)
 	{
 	  {
 	    {				// Face 0
-	      { 0, 0, -1 }		// Normal
-	    , { { { 0, 1, 0 } }		// Corners
+	      { { { 0, 1, 0 } }		// Corners
 	      , { { 1, 0, 0 } }
 	      , { { 0, 0, 0 } }
 	      , { { 1, 1, 0 } }
@@ -72,8 +79,7 @@ model_init (void)
 	    }
 	  ,
 	    {				// Face 1
-	      { 0, -1, 0 }		// Normal
-	    , { { { 0, 0, 0 } }		// Corners
+	      { { { 0, 0, 0 } }		// Corners
 	      , { { 1, 0, 1 } }
 	      , { { 0, 0, 1 } }
 	      , { { 1, 0, 0 } }
@@ -81,8 +87,7 @@ model_init (void)
 	    }
 	  ,
 	    {				// Face 2
-	      { 1, 0, 0 }		// Normal
-	    , { { { 1, 0, 0 } }		// Corners
+	      { { { 1, 0, 0 } }		// Corners
 	      , { { 1, 1, 1 } }
 	      , { { 1, 0, 1 } }
 	      , { { 1, 1, 0 } }
@@ -90,8 +95,7 @@ model_init (void)
 	    }
 	  ,
 	    {				// Face 3
-	      { 0, 1, 0 }		// Normal
-	    , { { { 1, 1, 0 } }		// Corners
+	      { { { 1, 1, 0 } }		// Corners
 	      , { { 0, 1, 1 } }
 	      , { { 1, 1, 1 } }
 	      , { { 0, 1, 0 } }
@@ -99,8 +103,7 @@ model_init (void)
 	    }
 	  ,
 	    {				// Face 4
-	      { -1, 0, 0 }		// Normal
-	    , { { { 0, 1, 0 } }		// Corners
+	      { { { 0, 1, 0 } }		// Corners
 	      , { { 0, 0, 1 } }
 	      , { { 0, 1, 1 } }
 	      , { { 0, 0, 0 } }
@@ -108,8 +111,7 @@ model_init (void)
 	    }
 	  ,
 	    {				// Face 5
-	      { 0, 0, 1 }		// Normal
-	    , { { { 0, 1, 1 } }		// Corners
+	      { { { 0, 1, 1 } }		// Corners
 	      , { { 1, 0, 1 } }
 	      , { { 1, 1, 1 } }
 	      , { { 0, 0, 1 } }
@@ -138,6 +140,28 @@ model_init (void)
 			corner->pos.y -= 0.5f;
 			corner->pos.z -= 0.5f;
 		}
+	}
+
+	// Face normals are cross product of two ribs:
+	for (int f = 0; f < 6; f++) {
+		struct face *face = &cube.face[f];
+
+		// First rib is (corner 3 - corner 0):
+		float a[3] = {
+			face->corner[3].pos.x - face->corner[0].pos.x,
+			face->corner[3].pos.y - face->corner[0].pos.y,
+			face->corner[3].pos.z - face->corner[0].pos.z,
+		};
+
+		// Second rib is (corner 2 - corner 0):
+		float b[3] = {
+			face->corner[2].pos.x - face->corner[0].pos.x,
+			face->corner[2].pos.y - face->corner[0].pos.y,
+			face->corner[2].pos.z - face->corner[0].pos.z,
+		};
+
+		// Face normal is cross product of these two ribs:
+		cross(&face->normal.x, a, b);
 	}
 
 	// Create two triangles for each face:
