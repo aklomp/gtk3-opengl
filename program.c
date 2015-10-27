@@ -15,11 +15,16 @@ extern const uint8_t _binary_shaders_fragment_glsl_end[];
 
 static GLuint program;
 
-static GLint vertex_loc;
-static GLint view_matrix_loc;
-static GLint model_matrix_loc;
-static GLint vcolor_loc;
-static GLint normal_loc;
+// Attribute/uniform locations:
+static struct {
+	struct {
+		GLint view;
+		GLint model;
+	} matrix;
+	GLint vertex;
+	GLint vcolor;
+	GLint normal;
+} loc;
 
 static void
 check_compile (GLuint shader)
@@ -99,11 +104,11 @@ program_init (void)
 	glDeleteShader(vert);
 	glDeleteShader(frag);
 
-	view_matrix_loc  = glGetUniformLocation(program, "view_matrix");
-	model_matrix_loc = glGetUniformLocation(program, "model_matrix");
-	vertex_loc = glGetAttribLocation(program, "vertex");
-	vcolor_loc = glGetAttribLocation(program, "vcolor");
-	normal_loc = glGetAttribLocation(program, "normal");
+	loc.matrix.view  = glGetUniformLocation(program, "view_matrix");
+	loc.matrix.model = glGetUniformLocation(program, "model_matrix");
+	loc.vertex = glGetAttribLocation(program, "vertex");
+	loc.vcolor = glGetAttribLocation(program, "vcolor");
+	loc.normal = glGetAttribLocation(program, "normal");
 }
 
 void
@@ -111,21 +116,21 @@ program_use (void)
 {
 	glUseProgram(program);
 
-	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, view_matrix());
-	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, model_matrix());
+	glUniformMatrix4fv(loc.matrix.view, 1, GL_FALSE, view_matrix());
+	glUniformMatrix4fv(loc.matrix.model, 1, GL_FALSE, model_matrix());
 }
 
 GLint program_vcolor_loc (void)
 {
-	return vcolor_loc;
+	return loc.vcolor;
 }
 
 GLint program_vertex_loc (void)
 {
-	return vertex_loc;
+	return loc.vertex;
 }
 
 GLint program_normal_loc (void)
 {
-	return normal_loc;
+	return loc.normal;
 }
