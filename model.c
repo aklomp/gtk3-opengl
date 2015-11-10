@@ -261,7 +261,7 @@ model_draw (void)
 	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 }
 
-float *
+const float *
 model_matrix (void)
 {
 	return matrix;

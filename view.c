@@ -6,7 +6,7 @@ static float width;
 static float height;
 static float z = 2.0f;
 
-float *
+const float *
 view_matrix (void)
 {
 	return matrix;
