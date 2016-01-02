@@ -1,8 +1,16 @@
+#include <stdbool.h>
+
 #include "gui.h"
 
-// Entry point
+// Application entry point
 int
 main (int argc, char **argv)
 {
-	return gui_run(argc, argv);
+	if (!gui_init(&argc, &argv))
+		return 1;
+
+	if (!gui_run())
+		return 1;
+
+	return 0;
 }

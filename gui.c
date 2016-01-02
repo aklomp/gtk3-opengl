@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include <GL/glew.h>
 #include <gtk/gtk.h>
 
@@ -124,11 +126,21 @@ on_scroll (GtkWidget* widget, GdkEventScroll *event)
 	return FALSE;
 }
 
-int
-gui_run (int argc, char **argv)
+bool
+gui_init (int *argc, char ***argv)
 {
-	gtk_init(&argc, &argv);
+	// Initialize GTK:
+	if (!gtk_init_check(argc, argv)) {
+		fputs("Could not initialize GTK", stderr);
+		return false;
+	}
 
+	return true;
+}
+
+bool
+gui_run (void)
+{
 	// Create toplevel window, add GtkGLArea:
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	GtkWidget *glarea = gtk_gl_area_new();
@@ -157,5 +169,5 @@ gui_run (int argc, char **argv)
 	// Enter GTK event loop:
 	gtk_main();
 
-	return 0;
+	return true;
 }
