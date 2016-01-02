@@ -8,6 +8,13 @@
 #include "program.h"
 #include "view.h"
 
+// Hold init data for GTK signals:
+struct signal {
+	const gchar	*signal;
+	GCallback	 handler;
+	GdkEventMask	 mask;
+};
+
 static gboolean panning = FALSE;
 
 static void
@@ -126,6 +133,41 @@ on_scroll (GtkWidget* widget, GdkEventScroll *event)
 	return FALSE;
 }
 
+static void
+connect_signals (GtkWidget *widget, struct signal *signals, size_t members)
+{
+	for (size_t i = 0; i < members; i++) {
+		gtk_widget_add_events(widget, signals[i].mask);
+		g_signal_connect(widget, signals[i].signal, signals[i].handler, NULL);
+	}
+}
+
+static void
+connect_window_signals (GtkWidget *window)
+{
+	struct signal signals[] = {
+		{ "destroy",			G_CALLBACK(gtk_main_quit),	0			},
+	};
+
+	connect_signals(window, signals, sizeof(signals) / sizeof(signals[0]));
+}
+
+static void
+connect_glarea_signals (GtkWidget *glarea)
+{
+	struct signal signals[] = {
+		{ "realize",			G_CALLBACK(on_realize),		0			},
+		{ "render",			G_CALLBACK(on_render),		0			},
+		{ "resize",			G_CALLBACK(on_resize),		0			},
+		{ "scroll-event",		G_CALLBACK(on_scroll),		GDK_SCROLL_MASK		},
+		{ "button-press-event",		G_CALLBACK(on_button_press),	GDK_BUTTON_PRESS_MASK	},
+		{ "button-release-event",	G_CALLBACK(on_button_release),	GDK_BUTTON_RELEASE_MASK	},
+		{ "motion-notify-event",	G_CALLBACK(on_motion_notify),	GDK_BUTTON1_MOTION_MASK	},
+	};
+
+	connect_signals(glarea, signals, sizeof(signals) / sizeof(signals[0]));
+}
+
 bool
 gui_init (int *argc, char ***argv)
 {
@@ -146,23 +188,9 @@ gui_run (void)
 	GtkWidget *glarea = gtk_gl_area_new();
 	gtk_container_add(GTK_CONTAINER(window), glarea);
 
-	// Connect window signals:
-	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
-	// Connect glarea signals:
-	g_signal_connect(glarea, "realize", G_CALLBACK(on_realize), NULL);
-	g_signal_connect(glarea, "render",  G_CALLBACK(on_render),  NULL);
-	g_signal_connect(glarea, "resize",  G_CALLBACK(on_resize),  NULL);
-	g_signal_connect(glarea, "scroll-event", G_CALLBACK(on_scroll), NULL);
-	g_signal_connect(glarea, "button-press-event",   G_CALLBACK(on_button_press),   NULL);
-	g_signal_connect(glarea, "button-release-event", G_CALLBACK(on_button_release), NULL);
-	g_signal_connect(glarea, "motion-notify-event",  G_CALLBACK(on_motion_notify),  NULL);
-
-	// Set glarea signal masks:
-	gtk_widget_add_events(glarea, GDK_SCROLL_MASK);
-	gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);
-	gtk_widget_add_events(glarea, GDK_BUTTON_RELEASE_MASK);
-	gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
+	// Connect GTK signals:
+	connect_window_signals(window);
+	connect_glarea_signals(glarea);
 
 	gtk_widget_show_all(window);
 
