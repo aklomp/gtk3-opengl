@@ -29,6 +29,44 @@ struct shader {
 	GLuint		 id;
 };
 
+// Location definitions:
+enum loc_type {
+	UNIFORM,
+	ATTRIBUTE,
+};
+
+struct loc {
+	const char *name;
+	enum loc_type type;
+	GLint id;
+};
+
+enum {
+	LOC_BKGD_VERTEX,
+	LOC_BKGD_TEXTURE,
+};
+
+static struct loc loc_bkgd[] = {
+	[LOC_BKGD_VERTEX]  = { "vertex",  ATTRIBUTE },
+	[LOC_BKGD_TEXTURE] = { "texture", ATTRIBUTE },
+};
+
+enum {
+	LOC_CUBE_VIEW,
+	LOC_CUBE_MODEL,
+	LOC_CUBE_VERTEX,
+	LOC_CUBE_VCOLOR,
+	LOC_CUBE_NORMAL,
+};
+
+static struct loc loc_cube[] = {
+	[LOC_CUBE_VIEW]   = { "view_matrix",	UNIFORM   },
+	[LOC_CUBE_MODEL]  = { "model_matrix",	UNIFORM   },
+	[LOC_CUBE_VERTEX] = { "vertex",		ATTRIBUTE },
+	[LOC_CUBE_VCOLOR] = { "vcolor",		ATTRIBUTE },
+	[LOC_CUBE_NORMAL] = { "normal",		ATTRIBUTE },
+};
+
 // Programs:
 enum {
 	BKGD,
@@ -41,33 +79,24 @@ static struct program {
 		struct shader vert;
 		struct shader frag;
 	} shader;
+	struct loc *loc;
+	size_t nloc;
 	GLuint id;
 }
 programs[] = {
 	[BKGD] = {
 		.shader.vert = SHADER (bkgd_vertex),
 		.shader.frag = SHADER (bkgd_fragment),
+		.loc         = loc_bkgd,
+		.nloc        = sizeof (loc_bkgd) / sizeof (loc_bkgd[0]),
 	},
 	[CUBE] = {
 		.shader.vert = SHADER (cube_vertex),
 		.shader.frag = SHADER (cube_fragment),
+		.loc         = loc_cube,
+		.nloc        = sizeof (loc_cube) / sizeof (loc_cube[0]),
 	},
 };
-
-// Attribute/uniform locations:
-static struct {
-	struct {
-		GLint view;
-		GLint model;
-	} matrix;
-	struct {
-		GLint vertex;
-		GLint texture;
-	} bkgd;
-	GLint vertex;
-	GLint vcolor;
-	GLint normal;
-} loc;
 
 static void
 check_compile (GLuint shader)
@@ -138,15 +167,22 @@ program_init (void)
 
 		glDeleteShader(vert->id);
 		glDeleteShader(frag->id);
-	}
 
-	loc.matrix.view  = glGetUniformLocation(programs[CUBE].id, "view_matrix");
-	loc.matrix.model = glGetUniformLocation(programs[CUBE].id, "model_matrix");
-	loc.vertex = glGetAttribLocation(programs[CUBE].id, "vertex");
-	loc.vcolor = glGetAttribLocation(programs[CUBE].id, "vcolor");
-	loc.normal = glGetAttribLocation(programs[CUBE].id, "normal");
-	loc.bkgd.vertex = glGetAttribLocation(programs[BKGD].id, "vertex");
-	loc.bkgd.texture = glGetAttribLocation(programs[BKGD].id, "texture");
+		for (size_t j = 0; j < p->nloc; j++) {
+			struct loc *l = &p->loc[j];
+
+			switch (l->type)
+			{
+			case UNIFORM:
+				l->id = glGetUniformLocation(p->id, l->name);
+				break;
+
+			case ATTRIBUTE:
+				l->id = glGetAttribLocation(p->id, l->name);
+				break;
+			}
+		}
+	}
 }
 
 void
@@ -154,8 +190,8 @@ program_use (void)
 {
 	glUseProgram(programs[CUBE].id);
 
-	glUniformMatrix4fv(loc.matrix.view, 1, GL_FALSE, view_matrix());
-	glUniformMatrix4fv(loc.matrix.model, 1, GL_FALSE, model_matrix());
+	glUniformMatrix4fv(programs[CUBE].loc[LOC_CUBE_VIEW].id, 1, GL_FALSE, view_matrix());
+	glUniformMatrix4fv(programs[CUBE].loc[LOC_CUBE_MODEL].id, 1, GL_FALSE, model_matrix());
 }
 
 void
@@ -168,25 +204,25 @@ program_bkgd_use (void)
 
 GLint program_vcolor_loc (void)
 {
-	return loc.vcolor;
+	return programs[CUBE].loc[LOC_CUBE_VCOLOR].id;
 }
 
 GLint program_vertex_loc (void)
 {
-	return loc.vertex;
+	return programs[CUBE].loc[LOC_CUBE_VERTEX].id;
 }
 
 GLint program_normal_loc (void)
 {
-	return loc.normal;
+	return programs[CUBE].loc[LOC_CUBE_NORMAL].id;
 }
 
 GLint program_bkgd_vertex_loc (void)
 {
-	return loc.bkgd.vertex;
+	return programs[BKGD].loc[LOC_BKGD_VERTEX].id;
 }
 
 GLint program_bkgd_texture_loc (void)
 {
-	return loc.bkgd.texture;
+	return programs[BKGD].loc[LOC_BKGD_TEXTURE].id;
 }
