@@ -21,7 +21,6 @@ struct vertex {
 	struct point pos;
 	struct point normal;
 	struct color color;
-
 } __attribute__((packed));
 
 // Each triangle has three vertices:
