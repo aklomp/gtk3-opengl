@@ -6,14 +6,46 @@
 #include "model.h"
 #include "view.h"
 
+// Define inline data:
+#define DATA_DEF(x)							\
+	extern const uint8_t _binary_shaders_## x ##_glsl_start[];	\
+	extern const uint8_t _binary_shaders_## x ##_glsl_end[];
+
+#define SHADER(x)					\
+	{ .buf = _binary_shaders_ ## x ## _glsl_start	\
+	, .end = _binary_shaders_ ## x ## _glsl_end	\
+	}
+
 // Inline data definitions:
-extern const uint8_t _binary_shaders_vertex_glsl_start[];
-extern const uint8_t _binary_shaders_vertex_glsl_end[];
+DATA_DEF (cube_vertex)
+DATA_DEF (cube_fragment)
 
-extern const uint8_t _binary_shaders_fragment_glsl_start[];
-extern const uint8_t _binary_shaders_fragment_glsl_end[];
+// Shader structure:
+struct shader {
+	const uint8_t	*buf;
+	const uint8_t	*end;
+	GLuint		 id;
+};
 
-static GLuint program;
+// Programs:
+enum {
+	CUBE,
+};
+
+// Program structure:
+static struct program {
+	struct {
+		struct shader vert;
+		struct shader frag;
+	} shader;
+	GLuint id;
+}
+programs[] = {
+	[CUBE] = {
+		.shader.vert = SHADER (cube_vertex),
+		.shader.frag = SHADER (cube_fragment),
+	},
+};
 
 // Attribute/uniform locations:
 static struct {
@@ -58,63 +90,56 @@ check_link (GLuint program)
 	free(log);
 }
 
-static GLuint
-create_shader (const uint8_t *_buf, const uint8_t *_end, GLenum type)
+static void
+create_shader (struct shader *shader, GLenum type)
 {
-	const GLchar *buf = _buf;
-	const GLchar *end = _end;
-	GLint len = end - buf;
+	const GLchar *buf = shader->buf;
+	GLint len = shader->end - shader->buf;
 
-	GLuint s = glCreateShader(type);
-	glShaderSource(s, 1, &buf, &len);
-	glCompileShader(s);
+	shader->id = glCreateShader(type);
+	glShaderSource(shader->id, 1, &buf, &len);
+	glCompileShader(shader->id);
 
-	check_compile(s);
-
-	return s;
+	check_compile(shader->id);
 }
 
 void
 program_init (void)
 {
-	GLuint vert = create_shader
-		( _binary_shaders_vertex_glsl_start
-		, _binary_shaders_vertex_glsl_end
-		, GL_VERTEX_SHADER
-		) ;
+	for (size_t i = 0; i < sizeof (programs) / sizeof (programs[0]); i++) {
+		struct program *p = &programs[i];
+		struct shader *vert = &p->shader.vert;
+		struct shader *frag = &p->shader.frag;
 
-	GLuint frag = create_shader
-		( _binary_shaders_fragment_glsl_start
-		, _binary_shaders_fragment_glsl_end
-		, GL_FRAGMENT_SHADER
-		) ;
+		create_shader(vert, GL_VERTEX_SHADER);
+		create_shader(frag, GL_FRAGMENT_SHADER);
 
-	program = glCreateProgram();
+		p->id = glCreateProgram();
 
-	glAttachShader(program, vert);
-	glAttachShader(program, frag);
+		glAttachShader(p->id, vert->id);
+		glAttachShader(p->id, frag->id);
 
-	glLinkProgram(program);
+		glLinkProgram(p->id);
+		check_link(p->id);
 
-	check_link(program);
+		glDetachShader(p->id, vert->id);
+		glDetachShader(p->id, frag->id);
 
-	glDetachShader(program, vert);
-	glDetachShader(program, frag);
+		glDeleteShader(vert->id);
+		glDeleteShader(frag->id);
+	}
 
-	glDeleteShader(vert);
-	glDeleteShader(frag);
-
-	loc.matrix.view  = glGetUniformLocation(program, "view_matrix");
-	loc.matrix.model = glGetUniformLocation(program, "model_matrix");
-	loc.vertex = glGetAttribLocation(program, "vertex");
-	loc.vcolor = glGetAttribLocation(program, "vcolor");
-	loc.normal = glGetAttribLocation(program, "normal");
+	loc.matrix.view  = glGetUniformLocation(programs[CUBE].id, "view_matrix");
+	loc.matrix.model = glGetUniformLocation(programs[CUBE].id, "model_matrix");
+	loc.vertex = glGetAttribLocation(programs[CUBE].id, "vertex");
+	loc.vcolor = glGetAttribLocation(programs[CUBE].id, "vcolor");
+	loc.normal = glGetAttribLocation(programs[CUBE].id, "normal");
 }
 
 void
 program_use (void)
 {
-	glUseProgram(program);
+	glUseProgram(programs[CUBE].id);
 
 	glUniformMatrix4fv(loc.matrix.view, 1, GL_FALSE, view_matrix());
 	glUniformMatrix4fv(loc.matrix.model, 1, GL_FALSE, model_matrix());

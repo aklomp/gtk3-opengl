@@ -6,7 +6,7 @@ LDFLAGS_GTK := $(shell pkg-config --libs   gtk+-3.0)
 
 PROG = gtk3-opengl
 OBJS = $(patsubst %.c,%.o,$(wildcard *.c))
-SHADERS = $(patsubst %.glsl,%.o,$(wildcard shaders/*.glsl))
+SHADERS = $(patsubst %.glsl,%.o,$(wildcard shaders/*/*.glsl))
 
 .PHONY: clean
 
