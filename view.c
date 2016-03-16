@@ -1,21 +1,25 @@
 #include "matrix.h"
 
-static float matrix[16];
-
-static float width;
-static float height;
-static float z = 2.0f;
+static struct {
+	float matrix[16];
+	float width;
+	float height;
+	float z;
+}
+state = {
+	.z = 2.0f,
+};
 
 const float *
 view_matrix (void)
 {
-	return matrix;
+	return state.matrix;
 }
 
 static void
 view_recalc (void)
 {
-	float aspect_ratio = (float)width / (float)height;
+	float aspect_ratio = state.width / state.height;
 	float matrix_frustum[16];
 	float matrix_translate[16];
 
@@ -23,25 +27,25 @@ view_recalc (void)
 	mat_frustum(matrix_frustum, 0.7, aspect_ratio, 0.5, 6);
 
 	// Create frustum translation matrix:
-	mat_translate(matrix_translate, 0, 0, z);
+	mat_translate(matrix_translate, 0, 0, state.z);
 
 	// Combine into perspective matrix:
-	mat_multiply(matrix, matrix_frustum, matrix_translate);
+	mat_multiply(state.matrix, matrix_frustum, matrix_translate);
 }
 
 void
-view_set_window (int _width, int _height)
+view_set_window (int width, int height)
 {
-	width = _width;
-	height = _height;
+	state.width  = width;
+	state.height = height;
 	view_recalc();
 }
 
 void
 view_z_decrease (void)
 {
-	if (z > 1.5f) {
-		z -= 0.1f;
+	if (state.z > 1.5f) {
+		state.z -= 0.1f;
 		view_recalc();
 	}
 }
@@ -49,8 +53,8 @@ view_z_decrease (void)
 void
 view_z_increase (void)
 {
-	if (z < 5.0f) {
-		z += 0.1f;
+	if (state.z < 5.0f) {
+		state.z += 0.1f;
 		view_recalc();
 	}
 }
