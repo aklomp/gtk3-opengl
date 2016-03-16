@@ -206,20 +206,20 @@ model_init (void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	// Add vertex data to first buffer:
-	glEnableVertexAttribArray(program_cube_vertex_loc());
-	glVertexAttribPointer(program_cube_vertex_loc(), 3, GL_FLOAT, GL_FALSE,
+	glEnableVertexAttribArray(program_cube_loc(LOC_CUBE_VERTEX));
+	glVertexAttribPointer(program_cube_loc(LOC_CUBE_VERTEX), 3, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
 		(void *)(&((struct vertex *)0)->pos.x));
 
 	// Add color data to second buffer:
-	glEnableVertexAttribArray(program_cube_vcolor_loc());
-	glVertexAttribPointer(program_cube_vcolor_loc(), 3, GL_FLOAT, GL_FALSE,
+	glEnableVertexAttribArray(program_cube_loc(LOC_CUBE_VCOLOR));
+	glVertexAttribPointer(program_cube_loc(LOC_CUBE_VCOLOR), 3, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
 		(void *)(&((struct vertex *)0)->color.r));
 
 	// Add normal data to third buffer:
-	glEnableVertexAttribArray(program_cube_normal_loc());
-	glVertexAttribPointer(program_cube_normal_loc(), 3, GL_FLOAT, GL_FALSE,
+	glEnableVertexAttribArray(program_cube_loc(LOC_CUBE_NORMAL));
+	glVertexAttribPointer(program_cube_loc(LOC_CUBE_NORMAL), 3, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
 		(void *)(&((struct vertex *)0)->normal.x));
 

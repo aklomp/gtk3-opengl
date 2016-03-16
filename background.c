@@ -33,8 +33,8 @@ background_set_window (int width, int height)
 		{ -1,  1,  0, ht },	// Top left
 	};
 
-	GLint loc_vertex  = program_bkgd_vertex_loc();
-	GLint loc_texture = program_bkgd_texture_loc();
+	GLint loc_vertex  = program_bkgd_loc(LOC_BKGD_VERTEX);
+	GLint loc_texture = program_bkgd_loc(LOC_BKGD_TEXTURE);
 
 	glBindVertexArray(vao);
 

@@ -5,6 +5,7 @@
 
 #include "model.h"
 #include "view.h"
+#include "program.h"
 
 // Define inline data:
 #define DATA_DEF(x)							\
@@ -36,27 +37,14 @@ enum loc_type {
 };
 
 struct loc {
-	const char *name;
-	enum loc_type type;
-	GLint id;
-};
-
-enum {
-	LOC_BKGD_VERTEX,
-	LOC_BKGD_TEXTURE,
+	const char	*name;
+	enum loc_type	 type;
+	GLint		 id;
 };
 
 static struct loc loc_bkgd[] = {
 	[LOC_BKGD_VERTEX]  = { "vertex",  ATTRIBUTE },
 	[LOC_BKGD_TEXTURE] = { "texture", ATTRIBUTE },
-};
-
-enum {
-	LOC_CUBE_VIEW,
-	LOC_CUBE_MODEL,
-	LOC_CUBE_VERTEX,
-	LOC_CUBE_VCOLOR,
-	LOC_CUBE_NORMAL,
 };
 
 static struct loc loc_cube[] = {
@@ -190,8 +178,8 @@ program_cube_use (void)
 {
 	glUseProgram(programs[CUBE].id);
 
-	glUniformMatrix4fv(programs[CUBE].loc[LOC_CUBE_VIEW].id, 1, GL_FALSE, view_matrix());
-	glUniformMatrix4fv(programs[CUBE].loc[LOC_CUBE_MODEL].id, 1, GL_FALSE, model_matrix());
+	glUniformMatrix4fv(loc_cube[LOC_CUBE_VIEW ].id, 1, GL_FALSE, view_matrix());
+	glUniformMatrix4fv(loc_cube[LOC_CUBE_MODEL].id, 1, GL_FALSE, model_matrix());
 }
 
 void
@@ -202,27 +190,14 @@ program_bkgd_use (void)
 	glUniform1i(glGetUniformLocation(programs[BKGD].id, "tex"), 0);
 }
 
-GLint program_cube_vcolor_loc (void)
+GLint
+program_bkgd_loc (const enum LocBkgd index)
 {
-	return programs[CUBE].loc[LOC_CUBE_VCOLOR].id;
+	return loc_bkgd[index].id;
 }
 
-GLint program_cube_vertex_loc (void)
+GLint
+program_cube_loc (const enum LocCube index)
 {
-	return programs[CUBE].loc[LOC_CUBE_VERTEX].id;
-}
-
-GLint program_cube_normal_loc (void)
-{
-	return programs[CUBE].loc[LOC_CUBE_NORMAL].id;
-}
-
-GLint program_bkgd_vertex_loc (void)
-{
-	return programs[BKGD].loc[LOC_BKGD_VERTEX].id;
-}
-
-GLint program_bkgd_texture_loc (void)
-{
-	return programs[BKGD].loc[LOC_BKGD_TEXTURE].id;
+	return loc_cube[index].id;
 }
