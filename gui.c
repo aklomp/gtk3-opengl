@@ -67,7 +67,7 @@ on_realize (GtkGLArea *glarea)
 	gtk_gl_area_set_has_depth_buffer(glarea, TRUE);
 
 	// Init programs:
-	program_init();
+	programs_init();
 
 	// Init background:
 	background_init();

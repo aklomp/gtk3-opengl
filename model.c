@@ -206,20 +206,20 @@ model_init (void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	// Add vertex data to first buffer:
-	glEnableVertexAttribArray(program_vertex_loc());
-	glVertexAttribPointer(program_vertex_loc(), 3, GL_FLOAT, GL_FALSE,
+	glEnableVertexAttribArray(program_cube_vertex_loc());
+	glVertexAttribPointer(program_cube_vertex_loc(), 3, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
 		(void *)(&((struct vertex *)0)->pos.x));
 
 	// Add color data to second buffer:
-	glEnableVertexAttribArray(program_vcolor_loc());
-	glVertexAttribPointer(program_vcolor_loc(), 3, GL_FLOAT, GL_FALSE,
+	glEnableVertexAttribArray(program_cube_vcolor_loc());
+	glVertexAttribPointer(program_cube_vcolor_loc(), 3, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
 		(void *)(&((struct vertex *)0)->color.r));
 
 	// Add normal data to third buffer:
-	glEnableVertexAttribArray(program_normal_loc());
-	glVertexAttribPointer(program_normal_loc(), 3, GL_FLOAT, GL_FALSE,
+	glEnableVertexAttribArray(program_cube_normal_loc());
+	glVertexAttribPointer(program_cube_normal_loc(), 3, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
 		(void *)(&((struct vertex *)0)->normal.x));
 
@@ -239,7 +239,7 @@ model_draw (void)
 	mat_rotate(matrix, rot.x, rot.y, rot.z, angle);
 
 	// Use our own shaders:
-	program_use();
+	program_cube_use();
 
 	// Don't clip against background:
 	glClear(GL_DEPTH_BUFFER_BIT);

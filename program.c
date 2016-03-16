@@ -144,7 +144,7 @@ create_shader (struct shader *shader, GLenum type)
 }
 
 void
-program_init (void)
+programs_init (void)
 {
 	for (size_t i = 0; i < sizeof (programs) / sizeof (programs[0]); i++) {
 		struct program *p = &programs[i];
@@ -186,7 +186,7 @@ program_init (void)
 }
 
 void
-program_use (void)
+program_cube_use (void)
 {
 	glUseProgram(programs[CUBE].id);
 
@@ -202,17 +202,17 @@ program_bkgd_use (void)
 	glUniform1i(glGetUniformLocation(programs[BKGD].id, "tex"), 0);
 }
 
-GLint program_vcolor_loc (void)
+GLint program_cube_vcolor_loc (void)
 {
 	return programs[CUBE].loc[LOC_CUBE_VCOLOR].id;
 }
 
-GLint program_vertex_loc (void)
+GLint program_cube_vertex_loc (void)
 {
 	return programs[CUBE].loc[LOC_CUBE_VERTEX].id;
 }
 
-GLint program_normal_loc (void)
+GLint program_cube_normal_loc (void)
 {
 	return programs[CUBE].loc[LOC_CUBE_NORMAL].id;
 }
