@@ -42,12 +42,6 @@ on_render (GtkGLArea *glarea, GdkGLContext *context)
 }
 
 static void
-on_update (GdkFrameClock *clock, GtkWidget *glarea)
-{
-	gtk_widget_queue_draw(glarea);
-}
-
-static void
 on_realize (GtkGLArea *glarea)
 {
 	// Make current:
@@ -80,8 +74,15 @@ on_realize (GtkGLArea *glarea)
 	GdkWindow *glwindow = gdk_gl_context_get_window(glcontext);
 	GdkFrameClock *frame_clock = gdk_window_get_frame_clock(glwindow);
 
+	// Connect update signal:
+	g_signal_connect_swapped
+		( frame_clock
+		, "update"
+		, G_CALLBACK(gtk_gl_area_queue_render)
+		, glarea
+		) ;
+
 	// Start updating:
-	g_signal_connect(frame_clock, "update", G_CALLBACK(on_update), glarea);
 	gdk_frame_clock_begin_updating(frame_clock);
 }
 
