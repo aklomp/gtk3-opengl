@@ -1,3 +1,9 @@
+# GTK+-3 introduced the native GtkGLArea in 3.16.
+# Check that we have at least that version:
+ifneq ($(shell pkg-config --atleast-version=3.16 gtk+-3.0 && echo 1 || echo 0),1)
+  $(error $(shell  pkg-config --print-errors --atleast-version=3.16 gtk+-3.0))
+endif
+
 CFLAGS  += -std=c99
 LDFLAGS += -lm -lGL -lGLEW
 
