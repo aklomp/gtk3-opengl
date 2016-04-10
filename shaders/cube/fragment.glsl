@@ -4,6 +4,8 @@ in vec3 fcolor;
 in vec3 fpos;
 in float fdot;
 
+out vec4 fragcolor;
+
 void main (void)
 {
 	if (!gl_FrontFacing)
@@ -19,5 +21,5 @@ void main (void)
 	vec3 scaled = linear * vec3(fdot * dst);
 
 	/* Restore gamma and output this color: */
-	gl_FragColor = vec4(pow(scaled, vec3(2.2)), 0.0);
+	fragcolor = vec4(pow(scaled, vec3(2.2)), 0.0);
 }

@@ -89,13 +89,13 @@ programs[] = {
 static void
 check_compile (GLuint shader)
 {
-	GLint status, length;
-
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status != GL_FALSE)
-		return;
+	GLint length;
 
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+
+	if (length <= 1)
+		return;
+
 	GLchar *log = calloc(length, sizeof(GLchar));
 	glGetShaderInfoLog(shader, length, NULL, log);
 	fprintf(stderr, "glCompileShader failed:\n%s\n", log);
