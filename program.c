@@ -43,8 +43,8 @@ struct loc {
 };
 
 static struct loc loc_bkgd[] = {
-	[LOC_BKGD_VERTEX]  = { "vertex",  ATTRIBUTE },
-	[LOC_BKGD_TEXTURE] = { "texture", ATTRIBUTE },
+	[LOC_BKGD_VERTEX]  = { "vertex",	ATTRIBUTE },
+	[LOC_BKGD_TEXTURE] = { "texture",	ATTRIBUTE },
 };
 
 static struct loc loc_cube[] = {
@@ -131,46 +131,50 @@ create_shader (struct shader *shader, GLenum type)
 	check_compile(shader->id);
 }
 
+static void
+program_init (struct program *p)
+{
+	struct shader *vert = &p->shader.vert;
+	struct shader *frag = &p->shader.frag;
+
+	create_shader(vert, GL_VERTEX_SHADER);
+	create_shader(frag, GL_FRAGMENT_SHADER);
+
+	p->id = glCreateProgram();
+
+	glAttachShader(p->id, vert->id);
+	glAttachShader(p->id, frag->id);
+
+	glLinkProgram(p->id);
+	check_link(p->id);
+
+	glDetachShader(p->id, vert->id);
+	glDetachShader(p->id, frag->id);
+
+	glDeleteShader(vert->id);
+	glDeleteShader(frag->id);
+
+	for (size_t j = 0; j < p->nloc; j++) {
+		struct loc *l = &p->loc[j];
+
+		switch (l->type)
+		{
+		case UNIFORM:
+			l->id = glGetUniformLocation(p->id, l->name);
+			break;
+
+		case ATTRIBUTE:
+			l->id = glGetAttribLocation(p->id, l->name);
+			break;
+		}
+	}
+}
+
 void
 programs_init (void)
 {
-	for (size_t i = 0; i < sizeof (programs) / sizeof (programs[0]); i++) {
-		struct program *p = &programs[i];
-		struct shader *vert = &p->shader.vert;
-		struct shader *frag = &p->shader.frag;
-
-		create_shader(vert, GL_VERTEX_SHADER);
-		create_shader(frag, GL_FRAGMENT_SHADER);
-
-		p->id = glCreateProgram();
-
-		glAttachShader(p->id, vert->id);
-		glAttachShader(p->id, frag->id);
-
-		glLinkProgram(p->id);
-		check_link(p->id);
-
-		glDetachShader(p->id, vert->id);
-		glDetachShader(p->id, frag->id);
-
-		glDeleteShader(vert->id);
-		glDeleteShader(frag->id);
-
-		for (size_t j = 0; j < p->nloc; j++) {
-			struct loc *l = &p->loc[j];
-
-			switch (l->type)
-			{
-			case UNIFORM:
-				l->id = glGetUniformLocation(p->id, l->name);
-				break;
-
-			case ATTRIBUTE:
-				l->id = glGetAttribLocation(p->id, l->name);
-				break;
-			}
-		}
-	}
+	for (size_t i = 0; i < sizeof(programs) / sizeof(programs[0]); i++)
+		program_init(&programs[i]);
 }
 
 void
