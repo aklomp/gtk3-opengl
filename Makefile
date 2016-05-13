@@ -20,17 +20,17 @@ TEXTURES = $(patsubst %.svg,%.o,$(wildcard textures/*.svg))
 $(PROG): $(OBJS) $(SHADERS) $(TEXTURES)
 	$(CC) -o $@ $^ $(LDFLAGS) $(LDFLAGS_GTK)
 
-$(SHADERS): %.o: %.glsl
-	$(LD) --relocatable --format=binary -o $@ $^
-
 textures/%.png: textures/%.svg
 	rsvg-convert --format png --output $@ $^
 
-textures/%.o: textures/%.png
-	$(LD) --relocatable --format=binary -o $@ $^
-
 %.o: %.c
 	$(CC) -o $@ $(CFLAGS) $(CFLAGS_GTK) -c $^
+
+%.o: %.glsl
+	$(LD) --relocatable --format=binary -o $@ $^
+
+%.o: %.png
+	$(LD) --relocatable --format=binary -o $@ $^
 
 clean:
 	rm -f $(PROG) $(OBJS) $(SHADERS) $(TEXTURES)
