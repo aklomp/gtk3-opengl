@@ -4,27 +4,28 @@ ifneq ($(shell pkg-config --atleast-version=3.16 gtk+-3.0 && echo 1 || echo 0),1
   $(error $(shell  pkg-config --print-errors --atleast-version=3.16 gtk+-3.0))
 endif
 
-CFLAGS  += -std=c99
-LDFLAGS += -lm -lGL -lGLEW
+PROG	 = gtk3-opengl
 
-CFLAGS_GTK  := $(shell pkg-config --cflags gtk+-3.0)
-LDFLAGS_GTK := $(shell pkg-config --libs   gtk+-3.0)
+CFLAGS	+= $(shell pkg-config --cflags gtk+-3.0)
+CFLAGS	+= -std=c99
 
-PROG = gtk3-opengl
-OBJS = $(patsubst %.c,%.o,$(wildcard *.c))
-SHADERS = $(patsubst %.glsl,%.o,$(wildcard shaders/*/*.glsl))
-TEXTURES = $(patsubst %.svg,%.o,$(wildcard textures/*.svg))
+LIBS	+= $(shell pkg-config --libs gtk+-3.0)
+LIBS	+= -lGLEW -lGL -lm
+
+OBJS	 = $(patsubst %.c,%.o,$(wildcard *.c))
+OBJS	+= $(patsubst %.glsl,%.o,$(wildcard shaders/*/*.glsl))
+OBJS	+= $(patsubst %.svg,%.o,$(wildcard textures/*.svg))
 
 .PHONY: clean
 
-$(PROG): $(OBJS) $(SHADERS) $(TEXTURES)
-	$(CC) -o $@ $^ $(LDFLAGS) $(LDFLAGS_GTK)
+$(PROG): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 textures/%.png: textures/%.svg
 	rsvg-convert --format png --output $@ $^
 
 %.o: %.c
-	$(CC) -o $@ $(CFLAGS) $(CFLAGS_GTK) -c $^
+	$(CC) $(CFLAGS) -o $@ -c $^
 
 %.o: %.glsl
 	$(LD) --relocatable --format=binary -o $@ $^
@@ -33,4 +34,4 @@ textures/%.png: textures/%.svg
 	$(LD) --relocatable --format=binary -o $@ $^
 
 clean:
-	rm -f $(PROG) $(OBJS) $(SHADERS) $(TEXTURES)
+	rm -f $(PROG) $(OBJS)
