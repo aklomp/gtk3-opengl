@@ -7,6 +7,7 @@
 #include "matrix.h"
 #include "model.h"
 #include "program.h"
+#include "util.h"
 #include "view.h"
 
 // Hold init data for GTK signals:
@@ -145,9 +146,9 @@ on_scroll (GtkWidget* widget, GdkEventScroll *event)
 static void
 connect_signals (GtkWidget *widget, struct signal *signals, size_t members)
 {
-	for (size_t i = 0; i < members; i++) {
-		gtk_widget_add_events(widget, signals[i].mask);
-		g_signal_connect(widget, signals[i].signal, signals[i].handler, NULL);
+	FOREACH_NELEM (signals, members, s) {
+		gtk_widget_add_events(widget, s->mask);
+		g_signal_connect(widget, s->signal, s->handler, NULL);
 	}
 }
 
@@ -158,7 +159,7 @@ connect_window_signals (GtkWidget *window)
 		{ "destroy",			G_CALLBACK(gtk_main_quit),	0			},
 	};
 
-	connect_signals(window, signals, sizeof(signals) / sizeof(signals[0]));
+	connect_signals(window, signals, NELEM(signals));
 }
 
 static void
@@ -174,7 +175,7 @@ connect_glarea_signals (GtkWidget *glarea)
 		{ "motion-notify-event",	G_CALLBACK(on_motion_notify),	GDK_BUTTON1_MOTION_MASK	},
 	};
 
-	connect_signals(glarea, signals, sizeof(signals) / sizeof(signals[0]));
+	connect_signals(glarea, signals, NELEM(signals));
 }
 
 bool

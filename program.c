@@ -6,6 +6,7 @@
 #include "model.h"
 #include "view.h"
 #include "program.h"
+#include "util.h"
 
 // Define inline data:
 #define DATA_DEF(x)							\
@@ -76,13 +77,13 @@ programs[] = {
 		.shader.vert = SHADER (bkgd_vertex),
 		.shader.frag = SHADER (bkgd_fragment),
 		.loc         = loc_bkgd,
-		.nloc        = sizeof (loc_bkgd) / sizeof (loc_bkgd[0]),
+		.nloc        = NELEM(loc_bkgd),
 	},
 	[CUBE] = {
 		.shader.vert = SHADER (cube_vertex),
 		.shader.frag = SHADER (cube_fragment),
 		.loc         = loc_cube,
-		.nloc        = sizeof (loc_cube) / sizeof (loc_cube[0]),
+		.nloc        = NELEM(loc_cube),
 	},
 };
 
@@ -154,9 +155,7 @@ program_init (struct program *p)
 	glDeleteShader(vert->id);
 	glDeleteShader(frag->id);
 
-	for (size_t j = 0; j < p->nloc; j++) {
-		struct loc *l = &p->loc[j];
-
+	FOREACH_NELEM (p->loc, p->nloc, l) {
 		switch (l->type)
 		{
 		case UNIFORM:
@@ -173,8 +172,8 @@ program_init (struct program *p)
 void
 programs_init (void)
 {
-	for (size_t i = 0; i < sizeof(programs) / sizeof(programs[0]); i++)
-		program_init(&programs[i]);
+	FOREACH (programs, p)
+		program_init(p);
 }
 
 void

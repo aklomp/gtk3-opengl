@@ -3,6 +3,7 @@
 
 #include "matrix.h"
 #include "program.h"
+#include "util.h"
 
 struct point {
 	float x;
@@ -222,10 +223,10 @@ model_init (void)
 		} ,
 	};
 
-	for (size_t i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
-		GLint loc = program_cube_loc(map[i].loc);
+	FOREACH (map, m) {
+		GLint loc = program_cube_loc(m->loc);
 		glEnableVertexAttribArray(loc);
-		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(struct vertex), map[i].ptr);
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(struct vertex), m->ptr);
 	}
 
 	// Upload vertex data:
