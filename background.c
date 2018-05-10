@@ -46,11 +46,11 @@ background_set_window (int width, int height)
 
 	glVertexAttribPointer(loc_vertex, 2, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
-		(void *)(&((struct vertex *)0)->x));
+		(void *) offsetof(struct vertex, x));
 
 	glVertexAttribPointer(loc_texture, 2, GL_FLOAT, GL_FALSE,
 		sizeof(struct vertex),
-		(void *)(&((struct vertex *)0)->u));
+		(void *) offsetof(struct vertex, u));
 
 	glBindVertexArray(0);
 }

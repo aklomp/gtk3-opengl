@@ -205,13 +205,13 @@ model_init (void)
 	}
 	map[] = {
 		{ .loc = LOC_CUBE_VERTEX
-		, .ptr = &((struct vertex *)0)->pos
+		, .ptr = (void *) offsetof(struct vertex, pos)
 		} ,
 		{ .loc = LOC_CUBE_VCOLOR
-		, .ptr = &((struct vertex *)0)->color
+		, .ptr = (void *) offsetof(struct vertex, color)
 		} ,
 		{ .loc = LOC_CUBE_NORMAL
-		, .ptr = &((struct vertex *)0)->normal
+		, .ptr = (void *) offsetof(struct vertex, normal)
 		} ,
 	};
 
