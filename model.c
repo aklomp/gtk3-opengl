@@ -118,10 +118,8 @@ model_init (void)
 	} ;
 
 	// Generate colors for each corner based on its position:
-	for (int f = 0; f < 6; f++) {
-		struct face *face = &cube.face[f];
-		for (int c = 0; c < 4; c++) {
-			struct corner *corner = &face->corner[c];
+	FOREACH (cube.face, face) {
+		FOREACH (face->corner, corner) {
 			corner->color.r = corner->pos.x * 0.8f + 0.1f;
 			corner->color.g = corner->pos.y * 0.8f + 0.1f;
 			corner->color.b = corner->pos.z * 0.8f + 0.1f;
@@ -129,10 +127,8 @@ model_init (void)
 	}
 
 	// Center cube on the origin by translating corner points:
-	for (int f = 0; f < 6; f++) {
-		struct face *face = &cube.face[f];
-		for (int c = 0; c < 4; c++) {
-			struct corner *corner = &face->corner[c];
+	FOREACH (cube.face, face) {
+		FOREACH (face->corner, corner) {
 			corner->pos.x -= 0.5f;
 			corner->pos.y -= 0.5f;
 			corner->pos.z -= 0.5f;
@@ -140,8 +136,7 @@ model_init (void)
 	}
 
 	// Face normals are cross product of two ribs:
-	for (int f = 0; f < 6; f++) {
-		struct face *face = &cube.face[f];
+	FOREACH (cube.face, face) {
 
 		// First rib is (corner 3 - corner 0):
 		struct point a = {
@@ -162,8 +157,7 @@ model_init (void)
 	}
 
 	// Create two triangles for each face:
-	for (int f = 0; f < 6; f++) {
-		struct face *face = &cube.face[f];
+	FOREACH (cube.face, face) {
 
 		// Corners to compose triangles of, chosen in
 		// such a way that both triangles rotate CCW:
@@ -186,10 +180,8 @@ model_init (void)
 	struct vertex vertex[6 * 2 * 3];
 	struct vertex *cur = vertex;
 
-	for (int f = 0; f < 6; f++) {
-		struct face *face = &cube.face[f];
-		for (int t = 0; t < 2; t++) {
-			struct triangle *tri = &face->tri[t];
+	FOREACH (cube.face, face) {
+		FOREACH (face->tri, tri) {
 			for (int v = 0; v < 3; v++) {
 				*cur++ = tri->vert[v];
 			}
