@@ -9,6 +9,8 @@ PROG	 = gtk3-opengl
 CFLAGS	+= $(shell pkg-config --cflags gtk+-3.0)
 CFLAGS	+= -std=c99
 
+LDFLAGS	+= -Wl,--export-dynamic
+
 LIBS	+= $(shell pkg-config --libs gtk+-3.0)
 LIBS	+= -lGLEW -lGL -lm
 

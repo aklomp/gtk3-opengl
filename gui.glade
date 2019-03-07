@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
+<interface>
+  <requires lib="gtk+" version="3.12"/>
+  <object class="GtkWindow" id="window">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">gtk3-opengl</property>
+    <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
+    <child>
+      <object class="GtkGLArea" id="glarea">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="events">GDK_BUTTON1_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_SCROLL_MASK</property>
+        <signal name="button-press-event" handler="on_button_press" swapped="no"/>
+        <signal name="button-release-event" handler="on_button_release" swapped="no"/>
+        <signal name="motion-notify-event" handler="on_motion_notify" swapped="no"/>
+        <signal name="realize" handler="on_realize" swapped="no"/>
+        <signal name="render" handler="on_render" swapped="no"/>
+        <signal name="resize" handler="on_resize" swapped="no"/>
+        <signal name="scroll-event" handler="on_scroll" swapped="no"/>
+      </object>
+    </child>
+  </object>
+</interface>

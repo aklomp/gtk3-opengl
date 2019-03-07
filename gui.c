@@ -10,23 +10,16 @@
 #include "util.h"
 #include "view.h"
 
-// Hold init data for GTK signals:
-struct signal {
-	const gchar	*signal;
-	GCallback	 handler;
-	GdkEventMask	 mask;
-};
-
 static gboolean panning = FALSE;
 
-static void
+void
 on_resize (GtkGLArea *area, gint width, gint height)
 {
 	view_set_window(width, height);
 	background_set_window(width, height);
 }
 
-static gboolean
+gboolean
 on_render (GtkGLArea *glarea, GdkGLContext *context)
 {
 	// Clear canvas:
@@ -42,7 +35,7 @@ on_render (GtkGLArea *glarea, GdkGLContext *context)
 	return TRUE;
 }
 
-static void
+void
 on_realize (GtkGLArea *glarea)
 {
 	// Make current:
@@ -87,7 +80,7 @@ on_realize (GtkGLArea *glarea)
 	gdk_frame_clock_begin_updating(frame_clock);
 }
 
-static gboolean
+gboolean
 on_button_press (GtkWidget *widget, GdkEventButton *event)
 {
 	GtkAllocation allocation;
@@ -102,7 +95,7 @@ on_button_press (GtkWidget *widget, GdkEventButton *event)
 	return FALSE;
 }
 
-static gboolean
+gboolean
 on_button_release (GtkWidget *widget, GdkEventButton *event)
 {
 	if (event->button == 1)
@@ -111,7 +104,7 @@ on_button_release (GtkWidget *widget, GdkEventButton *event)
 	return FALSE;
 }
 
-static gboolean
+gboolean
 on_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 {
 	GtkAllocation allocation;
@@ -123,7 +116,7 @@ on_motion_notify (GtkWidget *widget, GdkEventMotion *event)
 	return FALSE;
 }
 
-static gboolean
+gboolean
 on_scroll (GtkWidget* widget, GdkEventScroll *event)
 {
 	switch (event->direction)
@@ -143,41 +136,6 @@ on_scroll (GtkWidget* widget, GdkEventScroll *event)
 	return FALSE;
 }
 
-static void
-connect_signals (GtkWidget *widget, struct signal *signals, size_t members)
-{
-	FOREACH_NELEM (signals, members, s) {
-		gtk_widget_add_events(widget, s->mask);
-		g_signal_connect(widget, s->signal, s->handler, NULL);
-	}
-}
-
-static void
-connect_window_signals (GtkWidget *window)
-{
-	struct signal signals[] = {
-		{ "destroy",			G_CALLBACK(gtk_main_quit),	0			},
-	};
-
-	connect_signals(window, signals, NELEM(signals));
-}
-
-static void
-connect_glarea_signals (GtkWidget *glarea)
-{
-	struct signal signals[] = {
-		{ "realize",			G_CALLBACK(on_realize),		0			},
-		{ "render",			G_CALLBACK(on_render),		0			},
-		{ "resize",			G_CALLBACK(on_resize),		0			},
-		{ "scroll-event",		G_CALLBACK(on_scroll),		GDK_SCROLL_MASK		},
-		{ "button-press-event",		G_CALLBACK(on_button_press),	GDK_BUTTON_PRESS_MASK	},
-		{ "button-release-event",	G_CALLBACK(on_button_release),	GDK_BUTTON_RELEASE_MASK	},
-		{ "motion-notify-event",	G_CALLBACK(on_motion_notify),	GDK_BUTTON1_MOTION_MASK	},
-	};
-
-	connect_signals(glarea, signals, NELEM(signals));
-}
-
 bool
 gui_init (int *argc, char ***argv)
 {
@@ -193,15 +151,16 @@ gui_init (int *argc, char ***argv)
 bool
 gui_run (void)
 {
-	// Create toplevel window, add GtkGLArea:
-	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	GtkWidget *glarea = gtk_gl_area_new();
-	gtk_container_add(GTK_CONTAINER(window), glarea);
+	// Create builder:
+	GtkBuilder *builder = gtk_builder_new();
+	gtk_builder_add_from_file(builder, "gui.glade", NULL);
 
-	// Connect GTK signals:
-	connect_window_signals(window);
-	connect_glarea_signals(glarea);
+	// Get reference to toplevel window:
+	GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
+	gtk_builder_connect_signals(builder, NULL);
+	g_object_unref(builder);
 
+	// Show toplevel window:
 	gtk_widget_show_all(window);
 
 	// Enter GTK event loop:
