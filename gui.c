@@ -157,6 +157,7 @@ gui_run (void)
 
 	// Get reference to toplevel window:
 	GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
+	gtk_gl_area_set_required_version(GTK_GL_AREA(gtk_builder_get_object(builder, "glarea")), 3, 3);
 	gtk_builder_connect_signals(builder, NULL);
 	g_object_unref(builder);
 
