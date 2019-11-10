@@ -122,7 +122,7 @@ check_link (GLuint program)
 static void
 create_shader (struct shader *shader, GLenum type)
 {
-	const GLchar *buf = shader->buf;
+	const GLchar *buf = (const GLchar *) shader->buf;
 	GLint len = shader->end - shader->buf;
 
 	shader->id = glCreateShader(type);
