@@ -4,11 +4,10 @@ ifneq ($(shell pkg-config --atleast-version=3.16 gtk+-3.0 && echo 1 || echo 0),1
   $(error $(shell  pkg-config --print-errors --atleast-version=3.16 gtk+-3.0))
 endif
 
-PROG	 = gtk3-opengl
+BIN	 = gtk3-opengl
 
-CFLAGS	+= $(shell pkg-config --cflags gtk+-3.0)
 CFLAGS	+= -std=c99
-
+CFLAGS	+= $(shell pkg-config --cflags gtk+-3.0)
 LIBS	+= $(shell pkg-config --libs gtk+-3.0)
 LIBS	+= -lGLEW -lGL -lm
 
@@ -18,7 +17,7 @@ OBJS	+= $(patsubst %.svg,%.o,$(wildcard textures/*.svg))
 
 .PHONY: clean
 
-$(PROG): $(OBJS)
+$(BIN): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 textures/%.png: textures/%.svg
@@ -28,10 +27,10 @@ textures/%.png: textures/%.svg
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 %.o: %.glsl
-	$(LD) --relocatable --format=binary -o $@ $^
+	$(LD) -r -b binary -o $@ $^
 
 %.o: %.png
-	$(LD) --relocatable --format=binary -o $@ $^
+	$(LD) -r -b binary -o $@ $^
 
 clean:
-	rm -f $(PROG) $(OBJS)
+	$(RM) $(BIN) $(OBJS)
