@@ -1,2 +1,4 @@
-bool gui_init (int *argc, char ***argv);
-bool gui_run (void);
+#include <stdbool.h>
+
+extern bool gui_init (int *argc, char ***argv);
+extern bool gui_run (void);
