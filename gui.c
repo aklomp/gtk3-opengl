@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include <GL/glew.h>
+#include <GL/gl.h>
 #include <gtk/gtk.h>
 
 #include "background.h"
@@ -47,10 +47,6 @@ on_realize (GtkGLArea *glarea)
 {
 	// Make current:
 	gtk_gl_area_make_current(glarea);
-
-	// Init GLEW:
-	glewExperimental = GL_TRUE;
-	glewInit();
 
 	// Print version info:
 	const GLubyte* renderer = glGetString(GL_RENDERER);

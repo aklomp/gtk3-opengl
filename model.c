@@ -1,5 +1,6 @@
+#include <stddef.h>
 #include <math.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
 
 #include "matrix.h"
 #include "program.h"

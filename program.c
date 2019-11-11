@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
 
 #include "model.h"
 #include "view.h"

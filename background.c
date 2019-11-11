@@ -1,5 +1,5 @@
 #include <gdk/gdk.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
 
 #include "program.h"
 

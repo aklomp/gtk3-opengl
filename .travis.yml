@@ -7,7 +7,7 @@ compiler:
 addons:
   apt:
     packages:
-      - libglew-dev
+      - libgl-dev
       - libgtk-3-dev
       - librsvg2-bin
 
